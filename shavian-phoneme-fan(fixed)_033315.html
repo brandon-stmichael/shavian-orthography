@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shavian Alphabet — Letter to Phoneme Mapping</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:    #fdfaf4;
+    --ink:      #1c1610;
+    --mid:      #6b5f4e;
+    --rule:     #d4cabb;
+    --warm:     #f0ebe0;
+
+    /* Line colours */
+    --both:     #2a4a2a;   /* RP + GA agree — dark green */
+    --rp-only:  #8b3a0f;   /* RP only — terracotta */
+    --ga-only:  #1a3a5c;   /* GA only — navy */
+    --variable: #7a1a1a;   /* dialect-variable — deep red */
+    --compound: #7a4a00;   /* compound letters — amber */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    font-family: 'EB Garamond', Georgia, serif;
+    color: var(--ink);
+  }
+
+  .page { max-width: 1060px; margin: 0 auto; padding: 1.8rem 1.5rem 3rem; }
+
+  /* ── HEADER ── */
+  header { text-align: center; padding-bottom: 1rem; margin-bottom: 1rem;
+           border-bottom: 1.5px solid var(--ink); }
+  header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 0.25rem; }
+  header p  { font-size: 0.8rem; color: var(--mid); font-style: italic;
+              line-height: 1.6; max-width: 680px; margin: 0 auto; }
+
+  .instruction { text-align: center; font-size: 0.76rem; color: var(--mid);
+                 font-style: italic; margin-bottom: 1rem; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.8rem 1.6rem;
+    justify-content: center; margin-bottom: 1.4rem;
+    font-size: 0.76rem; color: var(--mid);
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .leg-line { display: inline-block; width: 28px; height: 0; border-top-width: 2px;
+              border-top-style: solid; }
+  .leg-line.dashed { border-top-style: dashed; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  /* ── TWO-COLUMN LAYOUT ── */
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.8rem;
+    align-items: start;
+  }
+
+  .col-head {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mid);
+    text-align: center; margin-bottom: 0.3rem;
+    padding-bottom: 0.25rem; border-bottom: 1px solid var(--rule);
+  }
+
+  svg.fan { width: 100%; display: block; overflow: visible; }
+
+  /* ── INTERACTION ── */
+  .phoneme-group { cursor: pointer; }
+  .phoneme-group rect { fill: transparent; transition: fill 0.12s; }
+  .phoneme-group:hover rect { fill: var(--warm); }
+
+  .dimmed { opacity: 0.07 !important; }
+  .highlighted line, .highlighted path { stroke-width: 2.5px !important; opacity: 1 !important; }
+  .highlighted rect { fill: var(--warm) !important; }
+
+  /* ── NOTE ── */
+  .note { font-size: 0.73rem; color: var(--mid); font-style: italic;
+          text-align: center; margin-top: 1.2rem; line-height: 1.55; }
+  .attr-byline {
+    display:flex;align-items:center;gap:0.6rem;justify-content:center;
+    margin-top:0.5rem;font-size:0.82rem;color:var(--muted,#6b5f4e);font-style:italic;
+  }
+  .attr-byline .attr-btn {
+    display:inline-block;background:none;border:1px solid var(--accent,#8b3a0f);
+    border-radius:20px;padding:0.15rem 0.7rem;font-size:0.72rem;font-style:normal;
+    font-family:inherit;cursor:pointer;color:var(--accent,#8b3a0f);text-decoration:none;
+    transition:background 0.15s,color 0.15s;letter-spacing:0.03em;
+  }
+  .attr-byline .attr-btn:hover{background:var(--accent,#8b3a0f);color:#fff;}
+  .attr-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,8,0.55);z-index:1000;align-items:center;justify-content:center;}
+  .attr-modal-overlay.open{display:flex;}
+  .attr-modal{background:#fdfaf4;border-radius:12px;padding:1.8rem 2rem;max-width:420px;width:90%;box-shadow:0 12px 40px rgba(26,18,8,0.35);position:relative;font-family:'EB Garamond','Source Serif 4',Georgia,serif;}
+  .attr-modal h2{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem;color:#1a1208;}
+  .attr-shavian{font-size:1.1rem;color:#8b3a0f;}
+  .attr-desc{font-size:0.8rem;color:#7a6e5f;font-style:italic;margin-bottom:1.1rem;line-height:1.55;}
+  .attr-links{display:flex;flex-direction:column;gap:0.45rem;}
+  .attr-link{display:flex;align-items:center;gap:0.7rem;padding:0.45rem 0.7rem;border-radius:7px;text-decoration:none;font-size:0.85rem;color:#1a1208;background:#f0ebe0;transition:background 0.12s;}
+  .attr-link:hover{background:#e8dfc8;}
+  .attr-icon{font-size:1.1rem;min-width:1.4rem;text-align:center;}
+  .attr-label{font-weight:600;}
+  .attr-sub{font-size:0.72rem;color:#7a6e5f;display:block;}
+  .attr-close{position:absolute;top:0.8rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#7a6e5f;line-height:1;}
+  .attr-close:hover{color:#1a1208;}
+  .attr-footer{margin-top:1rem;font-size:0.72rem;color:#9a8a78;font-style:italic;text-align:center;line-height:1.5;}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Shavian Alphabet — Letter to Phoneme Mapping</h1>
+  <p>Each Shavian letter with the phoneme(s) it represents in Received Pronunciation (RP) and General American (GA).
+     Single straight lines indicate a clean one-to-one mapping. Fan lines indicate stress-conditioned or
+     dialect-variable alternations. Dashed lines mark dialect-specific realizations.
+     Compound letters are shown in amber.</p>
+</header>
+<div class="attr-byline">
+  Created by <strong>Brandon</strong>
+  <span class="attr-btn" onclick="document.getElementById('attr-modal').classList.add('open')">Contact the author</span>
+</div>
+<div class="attr-modal-overlay" id="attr-modal" onclick="if(event.target===this)this.classList.remove('open')">
+<div class="attr-modal">
+<button class="attr-close" onclick="document.getElementById('attr-modal').classList.remove('open')">&#x2715;</button>
+<h2>Brandon | <span class="attr-shavian">&#xB7;&#x1045A;&#x1046E;&#x10468;&#x1046F;&#x1045B;&#x10469;&#x1046F;</span></h2>
+<div class="attr-desc">Creator of this Shavian reference work. Contributor to Joro.io. Shavian alphabet enthusiast and tutor.</div>
+<div class="attr-links">
+<a class="attr-link" href="https://www.facebook.com/groups/487613331992625" target="_blank"><span class="attr-icon">&#128216;</span><span><span class="attr-label">Facebook Group</span><span class="attr-sub">Shavian &middot; &#xB7;&#x10456;&#x10471;&#x1045D;&#x1047E;&#x1046F;</span></span></a>
+<a class="attr-link" href="https://bsky.app/profile/mr-brandon.bsky.social" target="_blank"><span class="attr-icon">&#129419;</span><span><span class="attr-label">Bluesky</span><span class="attr-sub">@mr-brandon.bsky.social</span></span></a>
+<a class="attr-link" href="https://www.reddit.com/user/bstmichael/" target="_blank"><span class="attr-icon">&#128172;</span><span><span class="attr-label">Reddit</span><span class="attr-sub">u/bstmichael</span></span></a>
+<a class="attr-link" href="https://discord.com/users/1478572677395386503" target="_blank"><span class="attr-icon">&#127918;</span><span><span class="attr-label">Discord</span><span class="attr-sub">mr_brandon_sir_64942</span></span></a>
+<a class="attr-link" href="https://groups.spacehey.com/shavian" target="_blank"><span class="attr-icon">&#127760;</span><span><span class="attr-label">SpaceHey Group</span><span class="attr-sub">groups.spacehey.com/shavian</span></span></a>
+<a class="attr-link" href="https://joro.io/" target="_blank"><span class="attr-icon">&#9997;</span><span><span class="attr-label">Blog</span><span class="attr-sub">joro.io</span></span></a>
+<a class="attr-link" href="mailto:thewayoutshow@aol.com"><span class="attr-icon">&#9993;</span><span><span class="attr-label">Email</span><span class="attr-sub">thewayoutshow@aol.com</span></span></a>
+</div>
+<div class="attr-footer"><em>Contact information was accurate when embedded in 2026. Links may change over time.</em></div>
+</div></div>
+<br>
+
+<p class="instruction">Click any row to highlight its connections · Click again to reset</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <span class="leg-line" style="border-color:var(--both)"></span>
+    RP &amp; GA agree
+  </div>
+  <div class="legend-item">
+    <span class="leg-line" style="border-color:var(--rp-only)"></span>
+    RP anchor (solid — GA splits below)
+  </div>
+  <div class="legend-item">
+    <span class="leg-line dashed" style="border-color:var(--rp-only)"></span>
+    RP only
+  </div>
+  <div class="legend-item">
+    <span class="leg-line dashed" style="border-color:var(--ga-only)"></span>
+    GA only
+  </div>
+  <div class="legend-item">
+    <span class="leg-line dashed" style="border-color:var(--variable)"></span>
+    Dialect-variable (speaker-resolved)
+  </div>
+  <div class="legend-item">
+    <span class="leg-line" style="border-color:var(--compound)"></span>
+    Compound letter
+  </div>
+</div>
+
+<div class="columns">
+  <div>
+    <div class="col-head">Tall &amp; Deep Consonants · Short Consonants</div>
+    <svg class="fan" id="svg-left"></svg>
+  </div>
+  <div>
+    <div class="col-head">Short Vowels · Compound Letters</div>
+    <svg class="fan" id="svg-right"></svg>
+  </div>
+</div>
+
+<p class="note">
+  Based on <em>Shavian_Phonemes.xlsx</em> compiled from shavian.info/alphabet and shavian.info/accents.
+  Shavian was designed as a Proposed British Alphabet (Shaw's will, 1950); RP is its native accent.
+  GA mappings reflect General American. Dialect fault lines — bath/trap, cot/caught, north/force —
+  are shown explicitly. Compound letters represent orthographic units rather than simplex phonemes.
+</p>
+
+</div><!-- /page -->
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA — derived from Shavian_Phonemes.xlsx
+// Each entry: { letter, group, kw, compound, phonemes: [{label, rp, ga, ex, status}] }
+// status: 'both' | 'rp-only' | 'ga-only' | 'variable'
+// ════════════════════════════════════════════════════════════════
+
+const ENTRIES = [
+  // ── TALL ──
+  { letter:'𐑐', group:'Tall', kw:'peep', compound:false,
+    phonemes:[{label:'/p/', rp:'/p/', ga:'/p/', ex:'peep, pin', status:'both'}] },
+  { letter:'𐑑', group:'Tall', kw:'tot', compound:false,
+    phonemes:[{label:'/t/', rp:'/t/', ga:'/t/', ex:'tot, tan', status:'both'}] },
+  { letter:'𐑒', group:'Tall', kw:'kick', compound:false,
+    phonemes:[{label:'/k/', rp:'/k/', ga:'/k/', ex:'kick, key', status:'both'}] },
+  { letter:'𐑓', group:'Tall', kw:'fee', compound:false,
+    phonemes:[{label:'/f/', rp:'/f/', ga:'/f/', ex:'fee, fay', status:'both'}] },
+  { letter:'𐑔', group:'Tall', kw:'thigh', compound:false,
+    phonemes:[{label:'/θ/', rp:'/θ/', ga:'/θ/', ex:'thigh, thorn', status:'both'}] },
+  { letter:'𐑕', group:'Tall', kw:'so', compound:false,
+    phonemes:[{label:'/s/', rp:'/s/', ga:'/s/', ex:'so, sea', status:'both'}] },
+  { letter:'𐑖', group:'Tall', kw:'sure', compound:false,
+    phonemes:[{label:'/ʃ/', rp:'/ʃ/', ga:'/ʃ/', ex:'sure, shy', status:'both'}] },
+  { letter:'𐑗', group:'Tall', kw:'church', compound:false,
+    phonemes:[{label:'/tʃ/', rp:'/tʃ/', ga:'/tʃ/', ex:'church, cha', status:'both'}] },
+  { letter:'𐑘', group:'Tall', kw:'yea', compound:false,
+    phonemes:[{label:'/j/', rp:'/j/', ga:'/j/', ex:'yea, yen', status:'both'}] },
+  { letter:'𐑙', group:'Tall', kw:'hung', compound:false,
+    phonemes:[{label:'/ŋ/', rp:'/ŋ/', ga:'/ŋ/', ex:'hung, song', status:'both'}] },
+  // ── DEEP ──
+  { letter:'𐑚', group:'Deep', kw:'bib', compound:false,
+    phonemes:[{label:'/b/', rp:'/b/', ga:'/b/', ex:'bib, bell', status:'both'}] },
+  { letter:'𐑛', group:'Deep', kw:'dead', compound:false,
+    phonemes:[{label:'/d/', rp:'/d/', ga:'/d/', ex:'dead, dun', status:'both'}] },
+  { letter:'𐑜', group:'Deep', kw:'gag', compound:false,
+    phonemes:[{label:'/ɡ/', rp:'/ɡ/', ga:'/ɡ/', ex:'gag, gill', status:'both'}] },
+  { letter:'𐑝', group:'Deep', kw:'vow', compound:false,
+    phonemes:[{label:'/v/', rp:'/v/', ga:'/v/', ex:'vow', status:'both'}] },
+  { letter:'𐑞', group:'Deep', kw:'they', compound:false,
+    phonemes:[{label:'/ð/', rp:'/ð/', ga:'/ð/', ex:'they, thou', status:'both'}] },
+  { letter:'𐑟', group:'Deep', kw:'zoo', compound:false,
+    phonemes:[{label:'/z/', rp:'/z/', ga:'/z/', ex:'zoo', status:'both'}] },
+  { letter:'𐑠', group:'Deep', kw:'measure', compound:false,
+    phonemes:[{label:'/ʒ/', rp:'/ʒ/', ga:'/ʒ/', ex:'measure, zho', status:'both'}] },
+  { letter:'𐑡', group:'Deep', kw:'judge', compound:false,
+    phonemes:[{label:'/dʒ/', rp:'/dʒ/', ga:'/dʒ/', ex:'judge, joy', status:'both'}] },
+  { letter:'𐑢', group:'Deep', kw:'woe', compound:false,
+    phonemes:[{label:'/w/', rp:'/w/', ga:'/w/', ex:'woe, way', status:'both'}] },
+  { letter:'𐑣', group:'Deep', kw:'ha-ha', compound:false,
+    phonemes:[{label:'/h/', rp:'/h/', ga:'/h/', ex:'ha-ha, who', status:'both'}] },
+  // ── SHORT CONSONANTS ──
+  { letter:'𐑤', group:'Short', kw:'loll', compound:false,
+    phonemes:[{label:'/l/', rp:'/l/', ga:'/l/', ex:'loll, lamb', status:'both'}] },
+  { letter:'𐑥', group:'Short', kw:'mime', compound:false,
+    phonemes:[{label:'/m/', rp:'/m/', ga:'/m/', ex:'mime, me', status:'both'}] },
+  { letter:'𐑮', group:'Short', kw:'roar', compound:false,
+    phonemes:[{label:'/r/', rp:'/r/', ga:'/r/', ex:'roar, row', status:'both'}] },
+  { letter:'𐑯', group:'Short', kw:'nun', compound:false,
+    phonemes:[{label:'/n/', rp:'/n/', ga:'/n/', ex:'nun, now', status:'both'}] },
+];
+
+const ENTRIES_RIGHT = [
+  // ── SHORT VOWELS ──
+  { letter:'𐑦', group:'Short', kw:'if', compound:false,
+    phonemes:[
+      {label:'/ɪ/ stressed', rp:'/ɪ/', ga:'/ɪ/', ex:'ship, sick, bridge, milk', status:'both'},
+      {label:'/i/ happY tense', rp:'/i/', ga:'/i/', ex:'copy, taxi, committee', status:'both'},
+    ]},
+  { letter:'𐑰', group:'Short', kw:'eat', compound:false,
+    phonemes:[
+      {label:'/iː/ RP · /i/ GA', rp:'/iː/', ga:'/i/', ex:'creep, speak, feel, key', status:'both'},
+    ]},
+  { letter:'𐑧', group:'Short', kw:'egg', compound:false,
+    phonemes:[
+      {label:'/e/ RP · /ɛ/ GA', rp:'/e/', ga:'/ɛ/', ex:'step, neck, shelf, friend', status:'both'},
+    ]},
+  { letter:'𐑱', group:'Short', kw:'age', compound:false,
+    phonemes:[
+      {label:'/eɪ/', rp:'/eɪ/', ga:'/eɪ/', ex:'tape, cake, raid, day', status:'both'},
+    ]},
+  { letter:'𐑨', group:'Short', kw:'ash', compound:false,
+    phonemes:[
+      {label:'/æ/ trap set', rp:'/æ/', ga:'/æ/', ex:'tap, back, hand, cancel', status:'both'},
+      {label:'/æ/ bath set (GA only)', rp:null, ga:'/æ/', ex:'staff, ask, dance, calf', status:'ga-only'},
+    ]},
+  { letter:'𐑲', group:'Short', kw:'ice', compound:false,
+    phonemes:[
+      {label:'/aɪ/', rp:'/aɪ/', ga:'/aɪ/', ex:'ripe, write, high, try', status:'both'},
+    ]},
+  { letter:'𐑩', group:'Short', kw:'ado', compound:false,
+    phonemes:[
+      {label:'/ə/ schwa', rp:'/ə/', ga:'/ə/', ex:'catalpa, quota, vodka', status:'both'},
+    ]},
+  { letter:'𐑳', group:'Short', kw:'up', compound:false,
+    phonemes:[
+      {label:'/ʌ/', rp:'/ʌ/', ga:'/ʌ/', ex:'cup, budge, trunk, blood', status:'both'},
+    ]},
+  { letter:'𐑪', group:'Short', kw:'on', compound:false,
+    phonemes:[
+      {label:'/ɒ/ RP (stable)', rp:'/ɒ/', ga:null, ex:'on, cough, broth, long', status:'rp-anchor'},
+      {label:'/ɑ/ GA (cot set)', rp:null, ga:'/ɑ/', ex:'on, octopus, Boston', status:'ga-only'},
+      {label:'/ɔ/ GA (caught set)', rp:null, ga:'/ɔ/', ex:'cough, broth, long, Boston', status:'variable'},
+    ]},
+  { letter:'𐑴', group:'Short', kw:'oak', compound:false,
+    phonemes:[
+      {label:'/əʊ/ RP · /oʊ/ GA', rp:'/əʊ/', ga:'/oʊ/', ex:'soap, joke, know, roll', status:'both'},
+    ]},
+  { letter:'𐑫', group:'Short', kw:'wool', compound:false,
+    phonemes:[
+      {label:'/ʊ/', rp:'/ʊ/', ga:'/ʊ/', ex:'put, bush, good, wolf', status:'both'},
+    ]},
+  { letter:'𐑵', group:'Short', kw:'ooze', compound:false,
+    phonemes:[
+      {label:'/uː/ RP · /u/ GA', rp:'/uː/', ga:'/u/', ex:'loop, shoot, tomb, mute', status:'both'},
+    ]},
+  { letter:'𐑬', group:'Short', kw:'out', compound:false,
+    phonemes:[
+      {label:'/aʊ/', rp:'/aʊ/', ga:'/aʊ/', ex:'out, house, count, cow', status:'both'},
+    ]},
+  { letter:'𐑶', group:'Short', kw:'oil', compound:false,
+    phonemes:[
+      {label:'/ɔɪ/', rp:'/ɔɪ/', ga:'/ɔɪ/', ex:'adroit, noise, toy', status:'both'},
+    ]},
+  { letter:'𐑭', group:'Short', kw:'ah', compound:false,
+    phonemes:[
+      {label:'/ɑː/ RP · /ɑ/ GA (father set)', rp:'/ɑː/', ga:'/ɑ/', ex:'psalm, father, spa, lager', status:'both'},
+      {label:'/ɑː/ RP only (bath set)', rp:'/ɑː/', ga:null, ex:'staff, ask, dance, calf', status:'rp-only'},
+    ]},
+  { letter:'𐑷', group:'Short', kw:'awe', compound:false,
+    phonemes:[
+      {label:'/ɔː/ RP · /ɔ/ GA', rp:'/ɔː/', ga:'/ɔ/', ex:'taught, sauce, hawk, jaw', status:'both'},
+    ]},
+  // ── COMPOUNDS ──
+  { letter:'𐑸', group:'Compound', kw:'are', compound:true,
+    phonemes:[
+      {label:'/ɑː/ RP · /ɑr/ GA', rp:'/ɑː/', ga:'/ɑr/', ex:'far, bark, farm, heart', status:'both'},
+    ]},
+  { letter:'𐑹', group:'Compound', kw:'or', compound:true,
+    phonemes:[
+      {label:'/ɔː/ RP (stable)', rp:'/ɔː/', ga:null, ex:'for, four, war, short, born', status:'rp-anchor'},
+      {label:'/ɔr/ GA (north set)', rp:null, ga:'/ɔr/', ex:'for, war, short, born, warm', status:'ga-only'},
+      {label:'/or/ GA (force set)', rp:null, ga:'/or/', ex:'four, wore, sport, story', status:'variable'},
+    ]},
+  { letter:'𐑺', group:'Compound', kw:'air', compound:true,
+    phonemes:[
+      {label:'/ɛə/ RP · /ɛr/ GA', rp:'/ɛə/', ga:'/ɛr/', ex:'care, fair, pear, where', status:'both'},
+    ]},
+  { letter:'𐑻', group:'Compound', kw:'urge', compound:true,
+    phonemes:[
+      {label:'/ɜː/ RP · /ɜr/ GA', rp:'/ɜː/', ga:'/ɜr/', ex:'hurt, lurk, burst, term', status:'both'},
+    ]},
+  { letter:'𐑼', group:'Compound', kw:'array', compound:true,
+    phonemes:[
+      {label:'/ə/ RP · /ər/ GA (-er ending)', rp:'/ə/', ga:'/ər/', ex:'paper, calendar, stupor', status:'both'},
+    ]},
+  { letter:'𐑽', group:'Compound', kw:'ear', compound:true,
+    phonemes:[
+      {label:'/ɪə/ RP · /ɪr/ GA', rp:'/ɪə/', ga:'/ɪr/', ex:'beer, fear, beard, serum', status:'both'},
+    ]},
+  { letter:'𐑾', group:'Compound', kw:'Ian', compound:true,
+    phonemes:[
+      {label:'/ɪə/', rp:'/ɪə/', ga:'/ɪə/', ex:'Ian, idea, area, tutorial', status:'both'},
+    ]},
+  { letter:'𐑿', group:'Compound', kw:'yew', compound:true,
+    phonemes:[
+      {label:'/juː/ RP · /ju/ GA', rp:'/juː/', ga:'/ju/', ex:'yew, yule, cute, few', status:'both'},
+    ]},
+  { letter:'𐑫𐑼', group:'Pair', kw:'cure', compound:true,
+    phonemes:[
+      {label:'/ʊə/ RP · /ʊr/ GA', rp:'/ʊə/', ga:'/ʊr/', ex:'poor, tourist, pure, jury', status:'both'},
+    ]},
+];
+
+// ════════════════════════════════════════════════════════════════
+// COLOURS
+// ════════════════════════════════════════════════════════════════
+const STATUS_COLOR = {
+  'both':      '#2a4a2a',
+  'rp-only':   '#8b3a0f',
+  'rp-anchor': '#8b3a0f',   /* solid RP anchor line */
+  'ga-only':   '#1a3a5c',
+  'variable':  '#7a1a1a',
+};
+const COMPOUND_COLOR = '#7a4a00';
+const GROUP_COLOR = {
+  Tall:     '#1a3a5c',
+  Deep:     '#5c1a1a',
+  Short:    '#2a5c2a',
+  Compound: '#7a4a00',
+};
+
+// ════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════
+
+function renderFan(svgEl, entries) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const PAD  = 14;
+  const G_SP = 22;   // spacing per phoneme line
+  const MIN_ROW = 24;
+  const SHAV_X  = 26;
+  const GRP_X   = 56;
+  const KW_X    = 110;
+  const PIVOT_X = 158;
+  const END_X   = 430;
+  const W = 460;
+
+  // Row heights based on phoneme count
+  const rowH = entries.map(e => Math.max(MIN_ROW, e.phonemes.length * G_SP + 4));
+  const totalH = rowH.reduce((a,b) => a+b, 0) + PAD*2;
+
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${totalH}`);
+  svgEl.setAttribute('height', totalH);
+
+  // Divider
+  const div = document.createElementNS(ns,'line');
+  div.setAttribute('x1',PIVOT_X); div.setAttribute('y1',0);
+  div.setAttribute('x2',PIVOT_X); div.setAttribute('y2',totalH);
+  div.setAttribute('stroke','#d4cabb'); div.setAttribute('stroke-width','0.5');
+  svgEl.appendChild(div);
+
+  // Column sub-labels
+  const mkLabel = (x, anchor, text) => {
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('x',x); t.setAttribute('y',9);
+    t.setAttribute('text-anchor',anchor);
+    t.setAttribute('font-family','EB Garamond,serif');
+    t.setAttribute('font-size','7.5');
+    t.setAttribute('fill','#999');
+    t.textContent = text;
+    svgEl.appendChild(t);
+  };
+  mkLabel(SHAV_X,'middle','Letter');
+  mkLabel(GRP_X, 'middle','Group');
+  mkLabel(KW_X,  'middle','Keyword');
+  mkLabel(PIVOT_X+4,'start','RP · GA phoneme + examples');
+
+  let y = PAD;
+  let activeGroup = null;
+
+  entries.forEach((entry, ei) => {
+    const rh = rowH[ei];
+    const cy = y + rh/2;
+    const n  = entry.phonemes.length;
+    const spread = Math.max((n-1)*G_SP, 0);
+    const startY = cy - spread/2;
+    const isMulti = n > 1;
+    const compColor = entry.compound ? COMPOUND_COLOR : null;
+    const gc = compColor || GROUP_COLOR[entry.group] || '#555';
+
+    // Row container group for click
+    const grp = document.createElementNS(ns,'g');
+    grp.setAttribute('class','phoneme-group');
+    grp.setAttribute('data-idx', ei);
+    svgEl.appendChild(grp);
+
+    // Hit rect
+    const hr = document.createElementNS(ns,'rect');
+    hr.setAttribute('x',0); hr.setAttribute('y', y+1);
+    hr.setAttribute('width', PIVOT_X-2); hr.setAttribute('height', rh-1);
+    hr.setAttribute('rx','2');
+    grp.appendChild(hr);
+
+    // Row rule
+    if (ei < entries.length-1) {
+      const rule = document.createElementNS(ns,'line');
+      rule.setAttribute('x1',0); rule.setAttribute('y1', y+rh);
+      rule.setAttribute('x2',W); rule.setAttribute('y2', y+rh);
+      rule.setAttribute('stroke','#d4cabb'); rule.setAttribute('stroke-width','0.35');
+      grp.appendChild(rule);
+    }
+
+    // Compound marker diamond
+    if (entry.compound) {
+      const dm = document.createElementNS(ns,'text');
+      dm.setAttribute('x', SHAV_X-14); dm.setAttribute('y', cy+4);
+      dm.setAttribute('font-size','8'); dm.setAttribute('fill', COMPOUND_COLOR);
+      dm.setAttribute('text-anchor','middle');
+      dm.textContent = '◆';
+      grp.appendChild(dm);
+    }
+
+    // Shavian glyph
+    const sg = document.createElementNS(ns,'text');
+    sg.setAttribute('x',SHAV_X); sg.setAttribute('y',cy+6);
+    sg.setAttribute('text-anchor','middle');
+    sg.setAttribute('font-family','serif');
+    sg.setAttribute('font-size','18');
+    sg.setAttribute('fill', gc);
+    sg.textContent = entry.letter;
+    grp.appendChild(sg);
+
+    // Group label
+    const gl = document.createElementNS(ns,'text');
+    gl.setAttribute('x',GRP_X); gl.setAttribute('y',cy+4);
+    gl.setAttribute('text-anchor','middle');
+    gl.setAttribute('font-family','EB Garamond,serif');
+    gl.setAttribute('font-size','7.5');
+    gl.setAttribute('font-style','italic');
+    gl.setAttribute('fill', gc);
+    gl.setAttribute('opacity','0.7');
+    gl.textContent = entry.group;
+    grp.appendChild(gl);
+
+    // Keyword
+    const kw = document.createElementNS(ns,'text');
+    kw.setAttribute('x',KW_X); kw.setAttribute('y',cy+4);
+    kw.setAttribute('text-anchor','middle');
+    kw.setAttribute('font-family','EB Garamond,serif');
+    kw.setAttribute('font-size','10');
+    kw.setAttribute('font-style','italic');
+    kw.setAttribute('fill', isMulti ? '#7a1a1a' : gc);
+    kw.textContent = entry.kw;
+    grp.appendChild(kw);
+
+    // Fan lines + phoneme labels (drawn on svg, not grp, so they sit above)
+    entry.phonemes.forEach((ph, pi) => {
+      const endY  = n===1 ? cy : startY + pi*G_SP;
+      const color = entry.compound ? COMPOUND_COLOR : STATUS_COLOR[ph.status] || '#555';
+      const isDash = ph.status === 'rp-only' || ph.status === 'ga-only' || ph.status === 'variable';
+      const sw    = (ph.status === 'both' || ph.status === 'rp-anchor') ? 1.3 : 0.9;
+      const op    = (ph.status === 'both' || ph.status === 'rp-anchor') ? 0.8 : 0.65;
+
+      const line = document.createElementNS(ns,'line');
+      line.setAttribute('x1', PIVOT_X);
+      line.setAttribute('y1', cy);
+      line.setAttribute('x2', END_X * 0.68 + PIVOT_X * 0.32);
+      line.setAttribute('y2', endY);
+      line.setAttribute('stroke', color);
+      line.setAttribute('stroke-width', sw);
+      line.setAttribute('opacity', op);
+      line.setAttribute('data-entry', ei);
+      if (isDash) line.setAttribute('stroke-dasharray','3,2');
+      svgEl.appendChild(line);
+
+      // IPA label
+      const ipaT = document.createElementNS(ns,'text');
+      ipaT.setAttribute('x', END_X*0.68 + PIVOT_X*0.32 + 3);
+      ipaT.setAttribute('y', endY+4);
+      ipaT.setAttribute('font-family','EB Garamond,serif');
+      ipaT.setAttribute('font-size','9.5');
+      ipaT.setAttribute('font-style','italic');
+      ipaT.setAttribute('fill', color);
+      ipaT.setAttribute('opacity', ph.status==='both' ? '0.9' : '0.7');
+      ipaT.setAttribute('data-entry', ei);
+      ipaT.textContent = ph.label;
+      svgEl.appendChild(ipaT);
+
+      // Example words (small, right-most)
+      if (ph.ex) {
+        const exT = document.createElementNS(ns,'text');
+        exT.setAttribute('x', END_X*0.68 + PIVOT_X*0.32 + 3);
+        exT.setAttribute('y', endY+13);
+        exT.setAttribute('font-family','EB Garamond,serif');
+        exT.setAttribute('font-size','7.5');
+        exT.setAttribute('fill','#888');
+        exT.setAttribute('data-entry', ei);
+        exT.textContent = ph.ex;
+        svgEl.appendChild(exT);
+      }
+    });
+
+    // Click handler
+    grp.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = parseInt(grp.getAttribute('data-idx'));
+      toggleHighlight(svgEl, idx);
+    });
+
+    y += rh;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// HIGHLIGHT INTERACTION
+// ════════════════════════════════════════════════════════════════
+
+const activeMap = {};
+
+function toggleHighlight(svgEl, idx) {
+  const id = svgEl.id;
+  if (activeMap[id] === idx) {
+    clearHighlight(svgEl);
+    delete activeMap[id];
+    return;
+  }
+  activeMap[id] = idx;
+
+  // Dim all
+  svgEl.querySelectorAll('.phoneme-group').forEach(g => {
+    const gi = parseInt(g.getAttribute('data-idx'));
+    g.style.opacity = gi === idx ? '1' : '0.1';
+  });
+
+  // Dim non-matching lines/labels
+  svgEl.querySelectorAll('[data-entry]').forEach(el => {
+    const ei = parseInt(el.getAttribute('data-entry'));
+    el.style.opacity = ei === idx ? '' : '0.06';
+    if (ei === idx) {
+      if (el.tagName === 'line') el.setAttribute('stroke-width','2.2');
+    }
+  });
+}
+
+function clearHighlight(svgEl) {
+  svgEl.querySelectorAll('.phoneme-group').forEach(g => g.style.opacity = '');
+  svgEl.querySelectorAll('[data-entry]').forEach(el => {
+    el.style.opacity = '';
+    if (el.tagName === 'line') el.removeAttribute('stroke-width');
+  });
+}
+
+// Click outside to reset
+document.addEventListener('click', () => {
+  document.querySelectorAll('.fan').forEach(svg => clearHighlight(svg));
+  Object.keys(activeMap).forEach(k => delete activeMap[k]);
+});
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+renderFan(document.getElementById('svg-left'),  ENTRIES);
+renderFan(document.getElementById('svg-right'), ENTRIES_RIGHT);
+</script>
+</body>
+</html>

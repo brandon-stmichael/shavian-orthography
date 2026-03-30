@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Phoneme–Grapheme Bipartite Map</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:   #fdfaf4;
+    --ink:     #1c1610;
+    --mid:     #6b5f4e;
+    --rule:    #d4cabb;
+    --warm:    #f0ebe0;
+    --amb:     #8b1a1a;
+    --unamb:   #a09080;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); font-family: 'EB Garamond', Georgia, serif; color: var(--ink); }
+  .page { max-width: 1100px; margin: 0 auto; padding: 1.8rem 1.5rem 3rem; }
+
+  header { text-align: center; padding-bottom: 0.9rem; margin-bottom: 0.9rem; border-bottom: 1.5px solid var(--ink); }
+  header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 0.25rem; }
+  header p  { font-size: 0.8rem; color: var(--mid); font-style: italic; line-height: 1.6; max-width: 700px; margin: 0 auto; }
+
+  .instruction { text-align: center; font-size: 0.76rem; color: var(--mid); font-style: italic; margin-bottom: 0.9rem; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem;
+    justify-content: center; margin-bottom: 1.1rem; font-size: 0.75rem; color: var(--mid);
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+  .leg-swatch { width: 26px; height: 0; display: inline-block; border-top-width: 1.5px; border-top-style: solid; }
+  .leg-swatch.dashed { border-top-style: dashed; }
+
+  #diagram-wrap { width: 100%; overflow-x: auto; }
+  svg#main { display: block; }
+
+  .ph-row  { cursor: pointer; }
+  .ph-row rect { fill: transparent; transition: fill 0.1s; }
+  .ph-row:hover rect { fill: var(--warm); }
+
+  .note { font-size: 0.72rem; color: var(--mid); font-style: italic; text-align: center; margin-top: 1.1rem; line-height: 1.55; }
+
+  .attr-byline {
+    display:flex;align-items:center;gap:0.6rem;justify-content:center;
+    margin-top:0.5rem;font-size:0.82rem;color:var(--muted,#6b5f4e);font-style:italic;
+  }
+  .attr-byline .attr-btn {
+    display:inline-block;background:none;border:1px solid var(--accent,#8b3a0f);
+    border-radius:20px;padding:0.15rem 0.7rem;font-size:0.72rem;font-style:normal;
+    font-family:inherit;cursor:pointer;color:var(--accent,#8b3a0f);text-decoration:none;
+    transition:background 0.15s,color 0.15s;letter-spacing:0.03em;
+  }
+  .attr-byline .attr-btn:hover{background:var(--accent,#8b3a0f);color:#fff;}
+  .attr-modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,18,8,0.55);z-index:1000;align-items:center;justify-content:center;}
+  .attr-modal-overlay.open{display:flex;}
+  .attr-modal{background:#fdfaf4;border-radius:12px;padding:1.8rem 2rem;max-width:420px;width:90%;box-shadow:0 12px 40px rgba(26,18,8,0.35);position:relative;font-family:'EB Garamond','Source Serif 4',Georgia,serif;}
+  .attr-modal h2{font-size:1.1rem;font-weight:700;margin-bottom:0.25rem;color:#1a1208;}
+  .attr-shavian{font-size:1.1rem;color:#8b3a0f;}
+  .attr-desc{font-size:0.8rem;color:#7a6e5f;font-style:italic;margin-bottom:1.1rem;line-height:1.55;}
+  .attr-links{display:flex;flex-direction:column;gap:0.45rem;}
+  .attr-link{display:flex;align-items:center;gap:0.7rem;padding:0.45rem 0.7rem;border-radius:7px;text-decoration:none;font-size:0.85rem;color:#1a1208;background:#f0ebe0;transition:background 0.12s;}
+  .attr-link:hover{background:#e8dfc8;}
+  .attr-icon{font-size:1.1rem;min-width:1.4rem;text-align:center;}
+  .attr-label{font-weight:600;}
+  .attr-sub{font-size:0.72rem;color:#7a6e5f;display:block;}
+  .attr-close{position:absolute;top:0.8rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#7a6e5f;line-height:1;}
+  .attr-close:hover{color:#1a1208;}
+  .attr-footer{margin-top:1rem;font-size:0.72rem;color:#9a8a78;font-style:italic;text-align:center;line-height:1.5;}
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>English Phoneme–Grapheme Bipartite Map</h1>
+  <p>Consonant phonemes (left) and vowel phonemes (right) connected by Bézier curves to every grapheme
+     that can spell them (centre, alphabetical). Red curves indicate graphemes shared across two or more
+     phonemes — the sources of English orthographic irregularity. Grey curves are unambiguous.
+     Dashed curves indicate rare or exceptional spellings.</p>
+</header>
+<div class="attr-byline">  Created by <strong>Brandon</strong>   <span class="attr-btn" onclick="document.getElementById('attr-modal').classList.add('open')">Contact the author</span></div>
+<div class="attr-modal-overlay" id="attr-modal" onclick="if(event.target===this)this.classList.remove('open')"><div class="attr-modal"><button class="attr-close" onclick="document.getElementById('attr-modal').classList.remove('open')">&#x2715;</button>
+<h2>Brandon | <span class="attr-shavian">&#xB7;&#x1045A;&#x1046E;&#x10468;&#x1046F;&#x1045B;&#x10469;&#x1046F;</span></h2>
+<div class="attr-desc">Creator of this Shavian reference work. Contributor to Joro.io. Shavian alphabet enthusiast and tutor.</div><div class="attr-links"><a class="attr-link" href="https://www.facebook.com/groups/487613331992625" target="_blank"><span class="attr-icon">&#128216;</span><span><span class="attr-label">Facebook Group</span><span class="attr-sub">Shavian &middot; &#xB7;&#x10456;&#x10471;&#x1045D;&#x1047E;&#x1046F;</span></span></a><a class="attr-link" href="https://bsky.app/profile/mr-brandon.bsky.social" target="_blank"><span class="attr-icon">&#129419;</span><span><span class="attr-label">Bluesky</span><span class="attr-sub">@mr-brandon.bsky.social</span></span></a><a class="attr-link" href="https://www.reddit.com/user/bstmichael/" target="_blank"><span class="attr-icon">&#128172;</span><span><span class="attr-label">Reddit</span><span class="attr-sub">u/bstmichael</span></span></a><a class="attr-link" href="https://discord.com/users/1478572677395386503" target="_blank"><span class="attr-icon">&#127918;</span><span><span class="attr-label">Discord</span><span class="attr-sub">mr_brandon_sir_64942</span></span></a><a class="attr-link" href="https://groups.spacehey.com/shavian" target="_blank"><span class="attr-icon">&#127760;</span><span><span class="attr-label">SpaceHey Group</span><span class="attr-sub">groups.spacehey.com/shavian</span></span></a><a class="attr-link" href="https://joro.io/" target="_blank"><span class="attr-icon">&#9997;</span><span><span class="attr-label">Blog</span><span class="attr-sub">joro.io</span></span></a>
+<a class="attr-link" href="mailto:thewayoutshow@aol.com"><span class="attr-icon">&#9993;</span><span><span class="attr-label">Email</span><span class="attr-sub">thewayoutshow@aol.com</span></span></a>
+</div>
+<div class="attr-footer"><em>Contact information was accurate when embedded in 2026. Links may change over time.</em></div></div></div>
+<br>
+<p class="instruction">Click any phoneme or grapheme to isolate its connections · Click again or elsewhere to reset</p>
+<div class="legend">
+  <div class="legend-item">
+    <span class="leg-swatch" style="border-color:var(--amb)"></span>
+    Ambiguous grapheme (maps to 2+ phonemes)
+  </div>
+  <div class="legend-item">
+    <span class="leg-swatch" style="border-color:var(--unamb)"></span>
+    Unambiguous grapheme
+  </div>
+  <div class="legend-item">
+    <span class="leg-swatch dashed" style="border-color:var(--amb)"></span>
+    Ambiguous · rare spelling
+  </div>
+  <div class="legend-item">
+    <span class="leg-swatch dashed" style="border-color:var(--unamb)"></span>
+    Unambiguous · rare spelling
+  </div>
+  <div class="legend-item">
+    <span style="font-size:0.8rem;color:#1a3a5c;font-style:italic">/p/</span>&nbsp;Unvoiced consonant
+  </div>
+  <div class="legend-item">
+    <span style="font-size:0.8rem;color:#5c1a1a;font-style:italic">/b/</span>&nbsp;Voiced consonant
+  </div>
+  <div class="legend-item">
+    <span style="font-size:0.8rem;color:#2a5c2a;font-style:italic">/æ/</span>&nbsp;Vowel
+  </div>
+</div>
+
+<div id="diagram-wrap">
+  <svg id="main"></svg>
+</div>
+
+<p class="note">
+  44 phonemes of General American English. Graphemes from
+  <em>44 Phonemes in English</em> (dyslexia-reading-well.com) and Cox Campus / Bruce Murray (Auburn University).
+  /ɒ/ is primarily a British (RP) vowel; in GA it merges with /ɑ/ or /ɔ/ by speaker and word.
+  138 unique graphemes; 53 are ambiguous (shared across phonemes).
+</p>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════
+
+const CONS = [
+  { ipa:'/p/', voiced:false, graphemes:[['p',false],['pp',true]] },
+  { ipa:'/t/', voiced:false, graphemes:[['t',false],['tt',true],['th',true],['ed',true]] },
+  { ipa:'/k/', voiced:false, graphemes:[['k',false],['c',false],['ck',false],['ch',true],['x',true],['cc',true],['qu',true],['q(u)',true],['lk',true]] },
+  { ipa:'/f/', voiced:false, graphemes:[['f',false],['ff',false],['ph',false],['gh',true],['lf',true],['ft',true]] },
+  { ipa:'/θ/', voiced:false, graphemes:[['th',false]] },
+  { ipa:'/s/', voiced:false, graphemes:[['s',false],['ss',false],['c',false],['sc',true],['ps',true],['st',true],['ce',true],['se',true]] },
+  { ipa:'/ʃ/', voiced:false, graphemes:[['sh',false],['ti',false],['ci',true],['ssi',true],['ce',true],['s',true],['ch',true],['sci',true]] },
+  { ipa:'/tʃ/',voiced:false, graphemes:[['ch',false],['tch',false],['tu',true],['te',true]] },
+  { ipa:'/h/', voiced:false, graphemes:[['h',false],['wh',true]] },
+  { ipa:'/b/', voiced:true,  graphemes:[['b',false],['bb',true]] },
+  { ipa:'/d/', voiced:true,  graphemes:[['d',false],['dd',false],['ed',true],['de',true]] },
+  { ipa:'/ɡ/', voiced:true,  graphemes:[['g',false],['gg',false],['gh',true],['gu',true],['gue',true]] },
+  { ipa:'/v/', voiced:true,  graphemes:[['v',false],['f',true],['ph',true],['ve',true]] },
+  { ipa:'/ð/', voiced:true,  graphemes:[['th',false]] },
+  { ipa:'/z/', voiced:true,  graphemes:[['s',false],['z',false],['zz',true],['ss',true],['x',true],['ze',true],['se',true]] },
+  { ipa:'/ʒ/', voiced:true,  graphemes:[['si',false],['s',false],['z',true]] },
+  { ipa:'/dʒ/',voiced:true,  graphemes:[['j',false],['g',false],['dge',false],['ge',true],['di',true],['gg',true]] },
+  { ipa:'/m/', voiced:true,  graphemes:[['m',false],['mm',false],['mb',true],['mn',true],['lm',true]] },
+  { ipa:'/n/', voiced:true,  graphemes:[['n',false],['nn',false],['kn',false],['gn',true],['pn',true],['mn',true]] },
+  { ipa:'/ŋ/', voiced:true,  graphemes:[['ng',false],['n',false],['ngue',true]] },
+  { ipa:'/j/', voiced:true,  graphemes:[['y',false],['i',false],['j',true]] },
+  { ipa:'/w/', voiced:true,  graphemes:[['w',false],['wh',false],['u',false],['o',true]] },
+  { ipa:'/l/', voiced:true,  graphemes:[['l',false],['ll',true]] },
+  { ipa:'/r/', voiced:true,  graphemes:[['r',false],['rr',true],['wr',true],['rh',true]] },
+];
+
+const VOWELS = [
+  { ipa:'/ɪ/',  type:'short',       graphemes:[['i',false],['y',false],['e',true],['o',true],['u',true],['ui',true],['ie',true]] },
+  { ipa:'/ɛ/',  type:'short',       graphemes:[['e',false],['ea',false],['u',true],['ie',true],['ai',true],['a',true],['eo',true],['ei',true],['ae',true]] },
+  { ipa:'/æ/',  type:'short',       graphemes:[['a',false],['ai',true],['au',true]] },
+  { ipa:'/ə/',  type:'short',       graphemes:[['a',false],['er',false],['i',false],['ar',true],['our',true],['ur',true]] },
+  { ipa:'/ɒ/',  type:'short',       graphemes:[['o',false],['a',true],['ho',true],['au',true],['aw',true],['ough',true]] },
+  { ipa:'/ʊ/',  type:'short',       graphemes:[['oo',false],['u',false],['o',false],['ou',true]] },
+  { ipa:'/ʌ/',  type:'short',       graphemes:[['u',false],['o',false],['oo',true],['ou',true]] },
+  { ipa:'/iː/', type:'long',        graphemes:[['e',false],['ee',false],['ea',false],['y',false],['ey',true],['ie',true],['oe',true],['i',true],['ei',true],['eo',true],['ay',true]] },
+  { ipa:'/ɑː/', type:'long',        graphemes:[['a',false]] },
+  { ipa:'/ɔː/', type:'long',        graphemes:[['aw',false],['a',false],['or',false],['oo',false],['ore',false],['oar',true],['our',true],['augh',true],['ar',true],['ough',true],['au',true]] },
+  { ipa:'/uː/', type:'long',        graphemes:[['oo',false],['u',false],['ew',false],['ue',false],['u_e',false],['o',true],['oe',true],['ough',true],['ui',true],['ou',true]] },
+  { ipa:'/eɪ/', type:'diphthong',   graphemes:[['a',false],['ai',false],['ay',false],['a_e',false],['eigh',true],['aigh',true],['er',true],['et',true],['ei',true],['au',true],['ea',true],['ey',true]] },
+  { ipa:'/aɪ/', type:'diphthong',   graphemes:[['i',false],['y',false],['igh',false],['i_e',false],['ie',true],['uy',true],['ye',true],['ai',true],['is',true],['eigh',true]] },
+  { ipa:'/oʊ/', type:'diphthong',   graphemes:[['o',false],['oa',false],['o_e',false],['ow',false],['oe',true],['ough',true],['eau',true],['oo',true],['ew',true]] },
+  { ipa:'/aʊ/', type:'diphthong',   graphemes:[['ow',false],['ou',false],['ough',true]] },
+  { ipa:'/ɔɪ/', type:'diphthong',   graphemes:[['oi',false],['oy',false],['uoy',true]] },
+  { ipa:'/ɑːr/',type:'r-controlled',graphemes:[['ar',false],['are',true],['ear',true],['er',true]] },
+  { ipa:'/ɜːr/',type:'r-controlled',graphemes:[['er',false],['ir',false],['ur',false],['ear',true],['or',true],['our',true],['yr',true]] },
+  { ipa:'/ɔːr/',type:'r-controlled',graphemes:[['or',false],['ore',false],['oor',true],['oar',true],['our',true],['aw',true],['augh',true],['ar',true],['ough',true]] },
+  { ipa:'/ɛər/',type:'r-controlled',graphemes:[['air',false],['are',false],['ear',false],['ere',true],['eir',true],['ayer',true]] },
+  { ipa:'/ɪər/',type:'r-controlled',graphemes:[['ear',false],['eer',false],['ere',true],['ier',true]] },
+  { ipa:'/ʊər/',type:'r-controlled',graphemes:[['ure',false],['our',true]] },
+];
+
+// ── Build grapheme map ──────────────────────────────────────────
+const gMap = {};  // base → Set of ipa strings
+[...CONS, ...VOWELS].forEach(ph => {
+  ph.graphemes.forEach(([g]) => {
+    if (!gMap[g]) gMap[g] = new Set();
+    gMap[g].add(ph.ipa);
+  });
+});
+const ALL_G = Object.keys(gMap).sort((a,b) => a.localeCompare(b));
+const isAmb = {};
+ALL_G.forEach(g => isAmb[g] = gMap[g].size >= 2);
+
+// ── Phoneme colours ─────────────────────────────────────────────
+const TYPE_COLOR = {
+  unvoiced:    '#1a3a5c',
+  voiced:      '#5c1a1a',
+  short:       '#2a5c2a',
+  long:        '#1a4a3a',
+  diphthong:   '#3a3a6a',
+  'r-controlled': '#6a3a00',
+};
+function phColor(ph) {
+  if (ph.voiced !== undefined) return ph.voiced ? TYPE_COLOR.voiced : TYPE_COLOR.unvoiced;
+  return TYPE_COLOR[ph.type] || TYPE_COLOR.short;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LAYOUT
+// ═══════════════════════════════════════════════════════════════════════
+const SVG_W  = 1040;
+const PAD_T  = 44;
+const PAD_B  = 20;
+const G_ROW  = 12.5;   // px per grapheme row
+const SPINE_H = ALL_G.length * G_ROW;
+
+const L_NODE  = SVG_W * 0.07;
+const G_LEFT  = SVG_W * 0.45;
+const G_RIGHT = SVG_W * 0.55;
+const R_NODE  = SVG_W * 0.93;
+const L_IPA_X = 6;
+const R_IPA_X = SVG_W - 6;
+const G_CX    = SVG_W / 2;
+const CTL_L   = SVG_W * 0.24;
+const CTL_R   = SVG_W * 0.76;
+
+const SVG_H   = SPINE_H + PAD_T + PAD_B + 10;
+
+// Y positions
+const L_SP = SPINE_H / (CONS.length + 1);
+const R_SP = SPINE_H / (VOWELS.length + 1);
+const phY  = {};
+
+CONS.forEach((ph, i)   => { phY[ph.ipa]  = PAD_T + 20 + (i+1)*L_SP; });
+VOWELS.forEach((ph, i) => { phY[ph.ipa]  = PAD_T + 20 + (i+1)*R_SP; });
+function gY(gi) { return PAD_T + 20 + gi * G_ROW + G_ROW/2; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════
+const svg = document.getElementById('main');
+const ns  = 'http://www.w3.org/2000/svg';
+svg.setAttribute('viewBox', `0 0 ${SVG_W} ${SVG_H}`);
+svg.setAttribute('width',  SVG_W);
+svg.setAttribute('height', SVG_H);
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(ns, tag);
+  Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(content, attrs, parent) {
+  const e = document.createElementNS(ns, 'text');
+  Object.entries(attrs).forEach(([k,v]) => e.setAttribute(k,v));
+  e.textContent = content;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+const layerCurves = el('g', {id:'curves'}, svg);
+const layerLabels = el('g', {id:'labels'}, svg);
+
+// ── Column headers ───────────────────────────────────────────────
+const hY = PAD_T + 8;
+for (const [x, anchor, label] of [
+  [L_NODE,      'middle', 'CONSONANTS'],
+  [G_CX,        'middle', 'GRAPHEMES  (alphabetical)'],
+  [R_NODE,      'middle', 'VOWELS · DIPHTHONGS · R-CONTROLLED'],
+]) {
+  txt(label, { x, y:hY, 'text-anchor':anchor,
+    'font-family':'EB Garamond,serif', 'font-size':'9',
+    'letter-spacing':'0.08em', fill:'#888', 'font-weight':'600' }, layerLabels);
+}
+
+// ── Column separators ────────────────────────────────────────────
+for (const sx of [(G_LEFT+L_NODE)/2+8, (G_RIGHT+R_NODE)/2-8]) {
+  el('line', {x1:sx, y1:PAD_T+14, x2:sx, y2:SVG_H-PAD_B,
+    stroke:'#d4cabb', 'stroke-width':'0.6'}, layerLabels);
+}
+
+// ── LEFT phoneme rows ────────────────────────────────────────────
+const leftEls  = {};
+const rightEls = {};
+
+CONS.forEach(ph => {
+  const cy = phY[ph.ipa];
+  const c  = phColor(ph);
+  const grp = el('g', {'class':'ph-row', 'data-ipa':ph.ipa}, layerLabels);
+  leftEls[ph.ipa] = grp;
+
+  el('rect', {x:0, y:cy-8, width:L_NODE+10, height:16, rx:'2'}, grp);
+  el('circle', {cx:L_IPA_X+5, cy, r:3, fill:c, 'stroke':'none', opacity:'0.7'}, grp);
+  txt(ph.ipa, {x:L_IPA_X+12, y:cy+4, 'font-family':'EB Garamond,serif',
+    'font-size':'10.5', 'font-style':'italic', fill:c, 'text-anchor':'start'}, grp);
+  el('circle', {cx:L_NODE, cy, r:2.5, fill:c, 'stroke':'none', opacity:'0.6'}, grp);
+
+  grp.addEventListener('click', e => { e.stopPropagation(); toggleHighlight('ph', ph.ipa); });
+});
+
+VOWELS.forEach(ph => {
+  const cy = phY[ph.ipa];
+  const c  = phColor(ph);
+  const grp = el('g', {'class':'ph-row', 'data-ipa':ph.ipa}, layerLabels);
+  rightEls[ph.ipa] = grp;
+
+  el('rect', {x:R_NODE-10, y:cy-8, width:SVG_W-R_NODE+10, height:16, rx:'2'}, grp);
+  el('circle', {cx:R_NODE, cy, r:2.5, fill:c, 'stroke':'none', opacity:'0.6'}, grp);
+  txt(ph.ipa, {x:R_IPA_X-12, y:cy+4, 'font-family':'EB Garamond,serif',
+    'font-size':'10.5', 'font-style':'italic', fill:c, 'text-anchor':'end'}, grp);
+  el('circle', {cx:R_IPA_X-5, cy, r:3, fill:c, 'stroke':'none', opacity:'0.7'}, grp);
+
+  grp.addEventListener('click', e => { e.stopPropagation(); toggleHighlight('ph', ph.ipa); });
+});
+
+// ── Grapheme labels + curves ─────────────────────────────────────
+const graphemeEls  = {};
+const curvePaths   = {};  // ipa+'|'+g → path element
+
+ALL_G.forEach((g, gi) => {
+  const cy  = gY(gi);
+  const amb = isAmb[g];
+  const fc  = amb ? '#8b1a1a' : '#7a6e5f';
+
+  // Curves for each phoneme this grapheme connects to
+  gMap[g].forEach(ipa => {
+    const isLeft = !!CONS.find(c => c.ipa === ipa);
+    const phEntry = [...CONS,...VOWELS].find(p => p.ipa === ipa);
+    if (!phEntry) return;
+
+    const rare = phEntry.graphemes.find(([gs]) => gs===g)?.[1] || false;
+    const py   = phY[ipa];
+    const x0   = isLeft ? L_NODE  : R_NODE;
+    const x1   = isLeft ? G_LEFT  : G_RIGHT;
+    const cx0  = isLeft ? CTL_L   : CTL_R;
+    const cx1  = isLeft ? G_CX-80 : G_CX+80;
+    const stroke = amb ? '#8b1a1a' : '#a09080';
+    const sw     = amb ? (rare ? 0.7 : 1.2) : (rare ? 0.55 : 0.85);
+    const op     = amb ? (rare ? 0.3 : 0.55) : (rare ? 0.18 : 0.32);
+
+    const p = el('path', {
+      d: `M${x0},${py} C${cx0},${py} ${cx1},${cy} ${x1},${cy}`,
+      fill:'none', stroke, 'stroke-width':sw, opacity:op,
+      'data-g':g, 'data-ipa':ipa,
+    }, layerCurves);
+    if (rare) p.setAttribute('stroke-dasharray','2.5,2');
+
+    if (!curvePaths[ipa]) curvePaths[ipa] = [];
+    curvePaths[ipa].push(p);
+    if (!curvePaths['_g_'+g]) curvePaths['_g_'+g] = [];
+    curvePaths['_g_'+g].push(p);
+  });
+
+  // Grapheme label group
+  const nSounds = gMap[g].size;
+  const grp = el('g', {'class':'ph-row', 'data-g':g}, layerLabels);
+  graphemeEls[g] = grp;
+
+  el('rect', {x:G_LEFT-2, y:cy-G_ROW/2, width:G_RIGHT-G_LEFT+4, height:G_ROW, rx:'2'}, grp);
+  el('circle', {cx:G_LEFT,  cy, r:1.8, fill:fc, 'stroke':'none', opacity:'0.7'}, grp);
+  el('circle', {cx:G_RIGHT, cy, r:1.8, fill:fc, 'stroke':'none', opacity:'0.7'}, grp);
+
+  const labelEl = txt(g, {
+    x:G_CX, y:cy+4, 'text-anchor':'middle',
+    'font-family':'Noto Sans Mono,monospace',
+    'font-size': g.length > 3 ? '8.5' : '10',
+    'font-weight': amb ? '600' : '400',
+    fill: fc,
+  }, grp);
+
+  if (amb) {
+    txt(`${nSounds}`, {
+      x: G_CX + (g.length > 2 ? 20 : 14), y: cy+3,
+      'font-family':'EB Garamond,serif', 'font-size':'7.5',
+      fill:'#8b1a1a', opacity:'0.6',
+    }, grp);
+  }
+
+  grp.addEventListener('click', e => { e.stopPropagation(); toggleHighlight('g', g); });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// INTERACTION
+// ═══════════════════════════════════════════════════════════════════════
+let activeKey = null;
+
+function toggleHighlight(type, key) {
+  if (activeKey === key) { clearHighlight(); return; }
+  activeKey = key;
+
+  // Collect connected IPAs and graphemes
+  const connIPAs = new Set();
+  const connGs   = new Set();
+
+  if (type === 'ph') {
+    connIPAs.add(key);
+    const ph = [...CONS,...VOWELS].find(p => p.ipa === key);
+    if (ph) ph.graphemes.forEach(([g]) => connGs.add(g));
+  } else {
+    connGs.add(key);
+    gMap[key].forEach(ipa => connIPAs.add(ipa));
+  }
+
+  // Dim everything
+  layerCurves.querySelectorAll('path').forEach(p => {
+    const g   = p.getAttribute('data-g');
+    const ipa = p.getAttribute('data-ipa');
+    const hit = connGs.has(g) && connIPAs.has(ipa);
+    p.style.opacity   = hit ? '1'   : '0.03';
+    p.style.strokeWidth = hit ? '2.2px' : '';
+  });
+
+  layerLabels.querySelectorAll('.ph-row').forEach(grp => {
+    const ipa = grp.getAttribute('data-ipa');
+    const g   = grp.getAttribute('data-g');
+    const hit = (ipa && connIPAs.has(ipa)) || (g && connGs.has(g));
+    grp.style.opacity = hit ? '1' : '0.12';
+  });
+}
+
+function clearHighlight() {
+  activeKey = null;
+  layerCurves.querySelectorAll('path').forEach(p => {
+     p.style.opacity = '';
+    p.style.strokeWidth = '';
+  });
+  layerLabels.querySelectorAll('.ph-row').forEach(g => g.style.opacity = '');
+}
+
+document.getElementById('diagram-wrap').addEventListener('click', clearHighlight);
+</script>
+</body>
+</html>
